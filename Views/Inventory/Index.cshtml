@@ -1,0 +1,83 @@
+﻿@using InventoryManagementSystem.Entities
+@model IEnumerable<InventoryItem>
+
+<div class="container mt-4">
+
+    <h2 class="mb-3">Inventory List</h2>
+
+    <a href="/Inventory/Create" class="btn btn-primary mb-3">Add Item</a>
+
+    <table class="table table-bordered table-striped">
+
+        <thead class="table-dark">
+            <tr>
+                <th>Category</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+
+                    <td>@item.Product.Category.CategoryName</td>
+
+                    <td>@item.Product.ProductName</td>
+
+                    <td>@item.Quantity</td>
+
+                    <td>@item.Price</td>
+
+                    <td>
+
+                        <a class="btn btn-warning btn-sm"
+                           href="/Inventory/Edit/@item.Id">Edit</a>
+
+                        <a class="btn btn-danger btn-sm"
+                           href="/Inventory/Delete/@item.Id"
+                           onclick="return confirm('Delete item?')">
+                            Delete
+                        </a>
+
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+    <nav class="mt-3">
+        <ul class="pagination justify-content-end">
+
+            <!-- Previous Button -->
+            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link" href="/Inventory/Index?page=@(ViewBag.CurrentPage - 1)">
+                    &laquo; Previous
+                </a>
+            </li>
+
+            <!-- Page Numbers -->
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="/Inventory/Index?page=@i">@i</a>
+                </li>
+            }
+
+            <!-- Next Button -->
+            <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                <a class="page-link" href="/Inventory/Index?page=@(ViewBag.CurrentPage + 1)">
+                    Next &raquo;
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+
+</div>
