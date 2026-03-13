@@ -16,6 +16,11 @@ namespace InventoryManagementSystem.Controllers
 
         public IActionResult Index(int page = 1)
         {
+            if (HttpContext.Session.GetString("Username") == null)
+            {
+                TempData["Message"] = "Please login first!";
+                return RedirectToAction("Login", "Account");
+            }
             int pageSize = 10;
             var totalItems = _dbcontext.Categories.Count();
             var categories = _dbcontext.Categories.OrderByDescending(r => r.CreatedAt)

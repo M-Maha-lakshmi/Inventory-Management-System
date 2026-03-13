@@ -14,6 +14,11 @@ public class ProductController : Controller
 
     public IActionResult Index(int page = 1)
     {
+        if (HttpContext.Session.GetString("Username") == null)
+        {
+            TempData["Message"] = "Please login first!";
+            return RedirectToAction("Login", "Account");
+        }
         int pageSize = 10;
         var totalItems = _dbcontext.Products.Count();
         var products = _dbcontext.Products

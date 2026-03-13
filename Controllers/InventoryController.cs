@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 public class InventoryController : Controller
 {
     private readonly InventoryDbContext _dbcontext;
-
+    
     public InventoryController(InventoryDbContext dbcontext)
     {
         _dbcontext = dbcontext;
@@ -13,6 +13,12 @@ public class InventoryController : Controller
 
     public IActionResult Index(int page = 1)
     {
+        if (HttpContext.Session.GetString("Username") == null)
+        {
+            TempData["Message"] = "Please login first!";
+            return RedirectToAction("Login", "Account");
+        }
+
         int pageSize = 10;
         var totalItems = _dbcontext.InventoryItems.Count();
         var items = _dbcontext.InventoryItems

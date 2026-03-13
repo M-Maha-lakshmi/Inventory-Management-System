@@ -1,5 +1,12 @@
 ﻿@using InventoryManagementSystem.Entities
 @model IEnumerable<InventoryItem>
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["Message"]
+    </div>
+}
+
 
 <div class="container mt-4">
 
