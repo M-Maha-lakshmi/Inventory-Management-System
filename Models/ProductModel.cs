@@ -1,6 +1,5 @@
-﻿using InventoryManagementSystem.Models;
-
-namespace InventoryManagementSystem.Model
+﻿
+namespace InventoryManagementSystem.Models
 {
     public class ProductModel
     {

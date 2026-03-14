@@ -1,17 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using InventoryManagementSystem.Models;
+using InventoryManagementSystem.Filters;
+using InventoryManagementSystem.Service;
+using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryManagementSystem.Controllers
 {
-    using InventoryManagementSystem.Entities;
-    using Microsoft.AspNetCore.Mvc;
-
+    [SessionAuthorize]
     public class CategoryController : Controller
     {
-        private readonly InventoryDbContext _dbcontext;
+        private readonly ICategoryService _categoryService;
 
-        public CategoryController(InventoryDbContext dbcontext)
+        public CategoryController(ICategoryService categoryService)
         {
-            _dbcontext = dbcontext;
+            _categoryService = categoryService;
         }
 
         public IActionResult Index(int page = 1)
@@ -21,14 +22,14 @@ namespace InventoryManagementSystem.Controllers
                 TempData["Message"] = "Please login first!";
                 return RedirectToAction("Login", "Account");
             }
+
             int pageSize = 10;
-            var totalItems = _dbcontext.Categories.Count();
-            var categories = _dbcontext.Categories.OrderByDescending(r => r.CreatedAt)
-                                    .Skip((page - 1) * pageSize)
-                                    .Take(pageSize)
-                                    .ToList();
+
+            var categories = _categoryService.GetCategories(page, pageSize);
+
             ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+            ViewBag.TotalPages = _categoryService.GetTotalPages(pageSize);
+
             return View(categories);
         }
 
@@ -38,38 +39,41 @@ namespace InventoryManagementSystem.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Category category)
+        public IActionResult Create(CategoryModel category)
         {
-            var user = HttpContext.Session.GetString("User");
+            var user = HttpContext.Session.GetString("Username");
+
             if (user != null)
                 category.CreatedBy = user;
-            _dbcontext.Categories.Add(category);
-            _dbcontext.SaveChanges();
+
+            _categoryService.AddCategory(category);
+
             return RedirectToAction("Index");
         }
 
         public IActionResult Edit(int id)
         {
-            var cat = _dbcontext.Categories.Find(id);
-            return View(cat);
+            var category = _categoryService.GetCategoryById(id);
+
+            return View(category);
         }
 
         [HttpPost]
-        public IActionResult Edit(Category category)
+        public IActionResult Edit(CategoryModel category)
         {
-            var user = HttpContext.Session.GetString("User");
+            var user = HttpContext.Session.GetString("Username");
+
             if (user != null)
                 category.CreatedBy = user;
-            _dbcontext.Categories.Update(category);
-            _dbcontext.SaveChanges();
+
+            _categoryService.UpdateCategory(category);
+
             return RedirectToAction("Index");
         }
 
         public IActionResult Delete(int id)
         {
-            var cat = _dbcontext.Categories.Find(id);
-            _dbcontext.Categories.Remove(cat);
-            _dbcontext.SaveChanges();
+            _categoryService.DeleteCategory(id);
 
             return RedirectToAction("Index");
         }

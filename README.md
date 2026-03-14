@@ -2,9 +2,15 @@
 An Inventory Management System is a software application used to track, manage, and control inventory items in an organization
 
 ## Features
-- Product 
-- Stock 
-- Order 
+- Login
+- Register
+- Password hashing (BCrypt)
+- Session authentication
+- Repo + Service architecture
+- Category module
+- Product module
+- Inventory module
+- Pagination
 
 ## Technology
 - ASP.NET Core MVC

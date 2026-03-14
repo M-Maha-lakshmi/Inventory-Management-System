@@ -1,14 +1,16 @@
-﻿using InventoryManagementSystem.Entities;
+﻿using InventoryManagementSystem.Models;
+using InventoryManagementSystem.Filters;
+using InventoryManagementSystem.Service;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
+[SessionAuthorize]
 public class InventoryController : Controller
 {
-    private readonly InventoryDbContext _dbcontext;
-    
-    public InventoryController(InventoryDbContext dbcontext)
+    private readonly IInventoryService _inventoryService;
+
+    public InventoryController(IInventoryService inventoryService)
     {
-        _dbcontext = dbcontext;
+        _inventoryService = inventoryService;
     }
 
     public IActionResult Index(int page = 1)
@@ -20,67 +22,62 @@ public class InventoryController : Controller
         }
 
         int pageSize = 10;
-        var totalItems = _dbcontext.InventoryItems.Count();
-        var items = _dbcontext.InventoryItems
-                    .Include(i => i.Product)
-                    .ThenInclude(p => p.Category)
-                    .OrderByDescending(r => r.CreatedAt)
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToList();
+
+        var items = _inventoryService.GetInventory(page, pageSize);
+
         ViewBag.CurrentPage = page;
-        ViewBag.TotalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+        ViewBag.TotalPages = _inventoryService.GetTotalPages(pageSize);
+
         return View(items);
     }
 
     public IActionResult Create()
     {
-        ViewBag.Categories = _dbcontext.Categories.ToList();
-        ViewBag.Products = _dbcontext.Products.ToList();
+        ViewBag.Categories = _inventoryService.GetCategories();
+        ViewBag.Products = _inventoryService.GetProducts();
 
         return View();
     }
 
     [HttpPost]
-    public IActionResult Create(InventoryItem item)
+    public IActionResult Create(InventoryItemModel item)
     {
-        var user = HttpContext.Session.GetString("User");
+        var user = HttpContext.Session.GetString("Username");
+
         if (user != null)
             item.CreatedBy = user;
-        _dbcontext.InventoryItems.Add(item);
-        _dbcontext.SaveChanges();
+
+        _inventoryService.AddInventory(item);
 
         return RedirectToAction("Index");
     }
 
     public IActionResult Edit(int id)
     {
-        var item = _dbcontext.InventoryItems.Find(id);
+        var item = _inventoryService.GetInventoryById(id);
 
-        ViewBag.Categories = _dbcontext.Categories.ToList();
-        ViewBag.Products = _dbcontext.Products.ToList();
+        ViewBag.Categories = _inventoryService.GetCategories();
+        ViewBag.Products = _inventoryService.GetProducts();
 
         return View(item);
     }
 
     [HttpPost]
-    public IActionResult Edit(InventoryItem item)
+    public IActionResult Edit(InventoryItemModel item)
     {
-        var user = HttpContext.Session.GetString("User");
+        var user = HttpContext.Session.GetString("Username");
+
         if (user != null)
             item.CreatedBy = user;
-        _dbcontext.InventoryItems.Update(item);
-        _dbcontext.SaveChanges();
+
+        _inventoryService.UpdateInventory(item);
 
         return RedirectToAction("Index");
     }
 
     public IActionResult Delete(int id)
     {
-        var item = _dbcontext.InventoryItems.Find(id);
-
-        _dbcontext.InventoryItems.Remove(item);
-        _dbcontext.SaveChanges();
+        _inventoryService.DeleteInventory(id);
 
         return RedirectToAction("Index");
     }

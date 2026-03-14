@@ -1,16 +1,16 @@
-﻿using InventoryManagementSystem.Entities;
+﻿using InventoryManagementSystem.Models;
+using InventoryManagementSystem.Service;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace InventoryManagementSystem.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly InventoryDbContext _dbcontext;
+        private readonly IAccountService _accountService;
 
-        public AccountController(InventoryDbContext dbcontext)
+        public AccountController(IAccountService accountService)
         {
-            _dbcontext = dbcontext;
+            _accountService = accountService;
         }
 
         public IActionResult Login()
@@ -21,11 +21,12 @@ namespace InventoryManagementSystem.Controllers
         [HttpPost]
         public IActionResult Login(string username, string password)
         {
-            var user = _dbcontext.Users.FirstOrDefault(x => x.Username == username);
+            var user = _accountService.GetUserByUsername(username);
 
             if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))
             {
                 HttpContext.Session.SetString("Username", user.Username);
+
                 return RedirectToAction("Index", "Inventory");
             }
 
@@ -33,23 +34,23 @@ namespace InventoryManagementSystem.Controllers
             return View();
         }
 
-
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
+
         public IActionResult Register()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult Register(User user)
+        public IActionResult Register(UserModel user)
         {
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-            _dbcontext.Users.Add(user);
-            _dbcontext.SaveChanges();
+
+            _accountService.Register(user);
 
             return RedirectToAction("Login");
         }

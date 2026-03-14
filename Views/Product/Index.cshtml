@@ -1,11 +1,4 @@
-﻿@model IEnumerable<InventoryManagementSystem.Entities.Product>
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-warning">
-        @TempData["Message"]
-    </div>
-}
-
+﻿@model IEnumerable<InventoryManagementSystem.Models.ProductModel>
 
 <div class="container mt-4">
 
@@ -57,7 +50,7 @@
 
             <!-- Previous Button -->
             <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                <a class="page-link" href="/Inventory/Index?page=@(ViewBag.CurrentPage - 1)">
+                <a class="page-link" href="/Product/Index?page=@(ViewBag.CurrentPage - 1)">
                     &laquo; Previous
                 </a>
             </li>
@@ -66,13 +59,13 @@
             @for (int i = 1; i <= ViewBag.TotalPages; i++)
             {
                 <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                    <a class="page-link" href="/Inventory/Index?page=@i">@i</a>
+                    <a class="page-link" href="/Product/Index?page=@i">@i</a>
                 </li>
             }
 
             <!-- Next Button -->
             <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                <a class="page-link" href="/Inventory/Index?page=@(ViewBag.CurrentPage + 1)">
+                <a class="page-link" href="/Product/Index?page=@(ViewBag.CurrentPage + 1)">
                     Next &raquo;
                 </a>
             </li>

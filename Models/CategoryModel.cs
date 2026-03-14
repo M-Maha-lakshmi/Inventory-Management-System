@@ -1,6 +1,4 @@
-﻿using InventoryManagementSystem.Model;
-
-namespace InventoryManagementSystem.Models
+﻿namespace InventoryManagementSystem.Models
 {
     public class CategoryModel
     {

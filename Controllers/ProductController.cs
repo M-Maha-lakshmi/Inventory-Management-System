@@ -1,15 +1,16 @@
-﻿using InventoryManagementSystem.Entities;
+﻿using InventoryManagementSystem.Models;
+using InventoryManagementSystem.Filters;
+using InventoryManagementSystem.Service;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
+[SessionAuthorize]
 public class ProductController : Controller
 {
-    private readonly InventoryDbContext _dbcontext;
+    private readonly IProductService _productService;
 
-    public ProductController(InventoryDbContext dbcontext)
+    public ProductController(IProductService productService)
     {
-        _dbcontext = dbcontext;
+        _productService = productService;
     }
 
     public IActionResult Index(int page = 1)
@@ -19,65 +20,61 @@ public class ProductController : Controller
             TempData["Message"] = "Please login first!";
             return RedirectToAction("Login", "Account");
         }
+
         int pageSize = 10;
-        var totalItems = _dbcontext.Products.Count();
-        var products = _dbcontext.Products
-                        .Include(p => p.Category)
-                        .Skip((page - 1) * pageSize)
-                        .Take(pageSize)
-                        .ToList();
+
+        var products = _productService.GetProducts(page, pageSize);
+
         ViewBag.CurrentPage = page;
-        ViewBag.TotalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+        ViewBag.TotalPages = _productService.GetTotalPages(pageSize);
 
         return View(products);
     }
-    
 
     public IActionResult Create()
     {
-        ViewBag.Categories = _dbcontext.Categories.ToList();
+        ViewBag.Categories = _productService.GetCategories();
         return View();
     }
 
     [HttpPost]
-    public IActionResult Create(Product product)
+    public IActionResult Create(ProductModel product)
     {
-        var user = HttpContext.Session.GetString("User");
+        var user = HttpContext.Session.GetString("Username");
+
         if (user != null)
             product.CreatedBy = user;
-        _dbcontext.Products.Add(product);
-        _dbcontext.SaveChanges();
+
+        _productService.AddProduct(product);
 
         return RedirectToAction("Index");
     }
 
     public IActionResult Edit(int id)
     {
-        ViewBag.Categories = _dbcontext.Categories.ToList();
+        ViewBag.Categories = _productService.GetCategories();
 
-        var product = _dbcontext.Products.Find(id);
+        var product = _productService.GetProductById(id);
 
         return View(product);
     }
 
     [HttpPost]
-    public IActionResult Edit(Product product)
+    public IActionResult Edit(ProductModel product)
     {
-        var user = HttpContext.Session.GetString("User");
+        var user = HttpContext.Session.GetString("Username");
+
         if (user != null)
             product.CreatedBy = user;
-        _dbcontext.Products.Update(product);
-        _dbcontext.SaveChanges();
+
+        _productService.UpdateProduct(product);
 
         return RedirectToAction("Index");
     }
 
     public IActionResult Delete(int id)
     {
-        var product = _dbcontext.Products.Find(id);
-
-        _dbcontext.Products.Remove(product);
-        _dbcontext.SaveChanges();
+        _productService.DeleteProduct(id);
 
         return RedirectToAction("Index");
     }
