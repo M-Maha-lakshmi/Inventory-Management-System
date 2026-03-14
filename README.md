@@ -17,10 +17,13 @@ An Inventory Management System is a software application used to track, manage, 
 - Entity Framework Core
 - MySQL
 
-## Package to Install
-dotnet add package BCrypt.Net-Next --version 4.1.0
-dotnet add package Microsoft.EntityFrameworkCore --version 8.0.25
-dotnet add package MySql.EntityFrameworkCore --version 8.0.22
+## Required Packages
+
+| Package | Version | Purpose |
+|---|---|---|
+| `BCrypt.Net-Next` | 4.1.0 | Password hashing — never store plain text passwords |
+| `Microsoft.EntityFrameworkCore` | 8.0.25 | ORM for database access |
+| `MySql.EntityFrameworkCore` | 8.0.22 | MySQL provider for EF Core |
 
 ## How to Run
 1. Clone the repository
